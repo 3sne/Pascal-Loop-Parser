@@ -104,10 +104,6 @@ identifier
    : IDENT
    ;
 
-   IDENT
-   : ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*
-   ;
-
 expression
    : simpleExpression (relationaloperator expression)
    | eps
