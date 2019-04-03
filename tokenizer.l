@@ -55,10 +55,13 @@ NQUOTE [^']
 {T}{O}    return(TO);
 {U}{N}{T}{I}{L}   return(UNTIL);
 {W}{H}{I}{L}{E}   return(WHILE);
+[a-zA-Z]           return(CHR);
 [a-zA-Z_]([a-zA-Z0-9_])+  return(IDENT);
+'({NQUOTE}|'')+'  return(STRING_LITERAL);
 ":="    return(ASSIGN);
 ":"    return(COLON);
 ","    return(COMMA);
+".."    return(DOTDOT);
 "="    return(EQUAL);
 ">="    return(GE);
 ">"    return(GT);

@@ -8,10 +8,11 @@
     // %token LITERAL SEMICOLON COMMA COLON ASSIGN LT GT LTE GTE EQUAL NOTEQUAL ADD MULTIPLY SUBTRACT DIVIDE COMP_AND COMP_DAND VOID COMP_OR COMP_DOR LP RP LC RC LSB RSB CHAR INT UINT SIGNED UNSIGNED SHORT LONG FLOAT DOUBLE REGISTER CONST IF ELSE FOR WHILE DO SWITCH CASE DEFAULT BREAK CONTINUE ENUM TYPEDEF EXTERN RETURN UNION GOTO ID NUM MOD;
 %}
 
-%token AND DIV DO DOWNTO ELSE END FOR GOTO IF IN MOD NIL NOT OR BEGIN REPEAT THEN TO UNTIL WHILE IDENT ASSIGN COLON COMMA EQUAL GE GT LBRACK LE LPAREN LT MINUS NOT_EQUAL PLUS RBRACK NUM_INT RPAREN SEMI SLASH STAR;
+%token AND DIV DO DOWNTO ELSE END FOR GOTO IF IN MOD NIL NOT OR BEGIN REPEAT THEN TO UNTIL WHILE IDENT ASSIGN COLON COMMA EQUAL GE GT LBRACK LE LPAREN LT MINUS NOT_EQUAL PLUS RBRACK NUM_INT RPAREN SEMI SLASH STAR CHR DOTDOT STRING_LITERAL;
 
 %%
-
+augment : repetetiveStatement
+   ;
 repetetiveStatement
    : whileStatement
    | repeatStatement
@@ -31,7 +32,7 @@ forStatement
    ;
 
 forList
-   : initialValue (TO | DOWNTO) finalValue
+   : initialValue TO finalValue | initialValue DOWNTO finalValue
    ;
 
 initialValue
@@ -63,7 +64,7 @@ assignmentStatement
    ;
 
 variable
-   : (AT identifier | identifier) (LBRACK expression (COMMA expression)* RBRACK | LBRACK2 expression (COMMA expression)* RBRACK2 | DOT identifier | POINTER)*
+   : identifier
    ;
 
 
@@ -77,12 +78,11 @@ label
 unsignedInteger
    : NUM_INT
    ;
-     
+    
 structuredStatement
    : compoundStatement
    | conditionalStatement
    | repetetiveStatement
-   
    ;
 
 
@@ -100,8 +100,9 @@ identifier
    ;
 
 expression
-   : simpleExpression (relationaloperator expression)
-   | eps
+   : simpleExpression
+   | simpleExpression relationaloperator expression
+
    ;
 
 relationaloperator
@@ -115,8 +116,8 @@ relationaloperator
    ;
 
 simpleExpression
-   : term (additiveoperator simpleExpression)
-   | eps
+   : term
+   | term additiveoperator simpleExpression
    ;
 
 
@@ -125,17 +126,17 @@ compoundStatement
    ;
 
 statements
-   : statement (SEMI statement)*
+   : statement SEMI statements |
    ;
 
 conditionalStatement
    : ifStatement
-   
+  
    ;
 
 ifStatement
-   : IF expression THEN statement (: ELSE statement)
-   | eps
+   : IF expression THEN statement
+   | IF expression THEN statement ELSE statement
    ;
 
 
@@ -154,8 +155,8 @@ additiveoperator
    ;
 
 term
-   : signedFactor (multiplicativeoperator term)
-   | eps
+   : signedFactor
+   | signedFactor multiplicativeoperator term
    ;
 
 multiplicativeoperator
@@ -167,9 +168,9 @@ multiplicativeoperator
    ;
 
 signedFactor
-   : (PLUS | MINUS)
-   | factor
-   | eps
+   : factor
+   | PLUS factor
+   | MINUS factor
    ;
 
 factor
@@ -179,20 +180,66 @@ factor
    | unsignedConstant
    | set
    | NOT factor
-   | bool
+   ;
+
+functionDesignator : identifier LPAREN parameterList RPAREN
+   ;
+
+parameterList : actualParameter ourBoi
+   ;
+
+ourBoi : COMMA actualParameter ourBoi
+   |
+   ;
+
+actualParameter : expression paramCool
+   ;
+
+paramCool
+   :parameterwidth paramCool
+   |
+   ;
+
+parameterwidth
+   : COLON expression
    ;
 
 unsignedConstant
-   : unsignedNumber
+   : unsignedInteger
    | constantChr
    | string
    | NIL
    ;
 
-eps :
+constantChr
+   : CHR LPAREN unsignedInteger RPAREN
    ;
 
+set
+   : LBRACK elementList RBRACK
+   ;
+
+
+elementList
+   : element elemCool
+   |
+   ;
+
+elemCool
+   : COMMA element elemCool
+   |
+   ;
+
+element
+   : expression
+   | expression DOTDOT expression
+   ;
+
+string
+   : STRING_LITERAL
+   ;
 %%
+
 
 int yyerror(char *msg) {
     printf("INVALID EXPR >> %s\n", msg);
