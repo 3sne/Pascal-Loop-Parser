@@ -49,7 +49,7 @@ NQUOTE [^']
 {N}{I}{L}   return(NIL);
 {N}{O}{T}   return(NOT);
 {O}{R}    return(OR);
-{B}{E}{G}{I}{N}   return(BEGIN);
+{B}{E}{G}{I}{N}   return(PBEGIN);
 {R}{E}{P}{E}{A}{T}  return(REPEAT);
 {T}{H}{E}{N}   return(THEN);
 {T}{O}    return(TO);
