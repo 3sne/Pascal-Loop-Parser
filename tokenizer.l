@@ -9,7 +9,6 @@
     symTableEntry* st[10];
     int tInd = 0, scnt = -1;
     int gl = 1, gc = 1;
-    int localizer = 0;
     int rownum = 1;
     int colnum = 1;
     char s[1000]={'\0'};
@@ -22,7 +21,7 @@
     void generateSymbolTable();
     void printTokenList();
     void printSymTable();
-    void putTokenListInFile();
+    void putTokenListAndSymbolTableInFile();
 %}
 
 %option yylineno
@@ -152,7 +151,7 @@ int yywrap() {
     printTokenList();
     generateSymbolTable();
     printSymTable();
-    putTokenListInFile();
+    putTokenListAndSymbolTableInFile();
     return (1);
 }
 
@@ -260,11 +259,33 @@ void printSymTableInHashTableFormat() {
     }
 }
 
-void putTokenListInFile() {
-    FILE *o = fopen("tokens.txt", "w");
+void putTokenListAndSymbolTableInFile() {
+    FILE *op = fopen("output_info.txt", "w");
+    fprintf(op, "***Source: tokenizer.l***\nTokenList\n---------\n");
     for ( int i = 0; i < tInd; i++ ) {
-        fprintf(o, "<%70s %10s %10d %10d %10d >\n", TokenList[i]->lName, TokenList[i]->tName, TokenList[i]->index, TokenList[i]->line, TokenList[i]->column);
+        fprintf(op, "<%20s %10s %10d %10d %10d >\n", TokenList[i]->lName, TokenList[i]->tName, TokenList[i]->index, TokenList[i]->line, TokenList[i]->column);
     }
-    fclose(o);
+    fprintf(op, "\n\nSymbolTable\n-----------\n");
+    symTableEntry* temp;
+    fprintf(op, "---------------------------------\n");
+    fprintf(op, "|          SYMBOL TABLE         |\n");
+    fprintf(op, "---------------------------------\n");
+    fprintf(op, "|    VAR    |    TYPE   | INDEX |\n");
+    fprintf(op, "------------+-----------+-------+\n");
+    for(int i = 0; i < 10; i++) {
+        for(temp = st[i]; temp; temp = temp->next) {
+            fprintf(op, "|%10s | %9s | %5d |\n", temp->varName, temp->varType, temp->id);
+        }
+    }
+    fprintf(op, "=================================\n");
+    fprintf(op, "\n\nSymbol Table as Open Chained Hash Function > Format :: { Index, VarName, VarType }\n");
+    for(int i = 0; i < 10; i++) {
+        fprintf(op, "[%d]: \n", i);
+        for(temp = st[i]; temp; temp = temp->next) {
+            fprintf(op, "\t{%4d, %10s, %20s}\n", temp->id, temp->varName, temp->varType);
+        }
+        fprintf(op, "\tNULL\n-----\n");
+    }
+    
+    fclose(op);
 }
-

@@ -1,0 +1,75 @@
+***Source: tokenizer.l***
+TokenList
+---------
+<                 var        VAR         -1          1          1 >
+<                   a      IDENT         69          1          1 >
+<                   ,      COMMA         -1          1          1 >
+<                   b      IDENT         69          1          1 >
+<                   :      COLON         -1          1          1 >
+<             integer      IDENT         -1          1          1 >
+<                   ;       SEMI         -1          1          1 >
+<              repeat     REPEAT         -1          1          1 >
+<                 sum      IDENT         -1          1          1 >
+<                  :=     ASSIGN         -1          1          1 >
+<                 sum      IDENT         -1          1          1 >
+<                   +       PLUS         -1          1          1 >
+<              number      IDENT         -1          1          1 >
+<                   ;       SEMI         -1          1          1 >
+<              number      IDENT         -1          1          1 >
+<                  :=     ASSIGN         -1          1          1 >
+<         bhosdapasum      IDENT         -1          1          1 >
+<                   -      MINUS         -1          1          1 >
+<                   1    NUM_INT         -1          1          1 >
+<                   ;       SEMI         -1          1          1 >
+<               until      UNTIL         -1          1          1 >
+<              number      IDENT         -1          1          1 >
+<                   =      EQUAL         -1          1          1 >
+<                   0    NUM_INT         -1          1          1 >
+<                   ;       SEMI         -1          1          1 >
+
+
+SymbolTable
+-----------
+---------------------------------
+|          SYMBOL TABLE         |
+---------------------------------
+|    VAR    |    TYPE   | INDEX |
+------------+-----------+-------+
+|         a |   integer |     0 |
+|         b |   integer |     1 |
+=================================
+
+
+Symbol Table as Open Chained Hash Function > Format :: { Index, VarName, VarType }
+[0]: 
+	NULL
+-----
+[1]: 
+	NULL
+-----
+[2]: 
+	NULL
+-----
+[3]: 
+	NULL
+-----
+[4]: 
+	NULL
+-----
+[5]: 
+	NULL
+-----
+[6]: 
+	NULL
+-----
+[7]: 
+	{   0,          a,              integer}
+	NULL
+-----
+[8]: 
+	{   1,          b,              integer}
+	NULL
+-----
+[9]: 
+	NULL
+-----
