@@ -11,6 +11,7 @@
     // %token LITERAL SEMICOLON COMMA COLON ASSIGN LT GT LTE GTE EQUAL NOTEQUAL ADD MULTIPLY SUBTRACT DIVIDE COMP_AND COMP_DAND VOID COMP_OR COMP_DOR LP RP LC RC LSB RSB CHAR INT UINT SIGNED UNSIGNED SHORT LONG FLOAT DOUBLE REGISTER CONST IF ELSE FOR WHILE DO SWITCH CASE DEFAULT BREAK CONTINUE ENUM TYPEDEF EXTERN RETURN UNION GOTO ID NUM MOD;
 %}
 
+
 %token AND "and" DIV "div" DO "do" DOWNTO "downto" ELSE "else" END "end" FOR "for" GOTO "goto" IF "if" IN "in" MOD "mod" NIL "nil" NOT "not" OR "or" PBEGIN "begin" REPEAT "repeat" 
 %token THEN "then" TO "to" UNTIL "until" WHILE "while" IDENT "identifier" ASSIGN ":=" COLON ":" COMMA "," EQUAL "=" GE ">=" GT ">" LBRACK "[" LE "<=" LPAREN "("
 %token LT "<" MINUS "minus" NOT_EQUAL "<>" PLUS "+" RBRACK "]" NUM_INT "number" RPAREN ")" SEMI "semicolon" SLASH "/" STAR "*"  DOTDOT ".." CHR "character"
@@ -19,6 +20,8 @@
 %locations
 %define parse.lac full
 %define api.pure true
+
+
 
 %%
 augment : variable_declaration_part repetetiveStatement
@@ -229,6 +232,7 @@ simpleExpression
 
 compoundStatement
    : PBEGIN statements END SEMI
+
    ;
 
 statements

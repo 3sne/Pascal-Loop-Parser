@@ -113,8 +113,11 @@ strcpy(s, temp);
 rownum++;
 colnum=1;
 
+
 }
 " "    {lastupdate = 1;colnum++;strcat(s, yytext);}
+
+
 
 
 %%
