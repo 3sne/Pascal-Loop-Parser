@@ -20,4 +20,8 @@ If you want to check out the parser: <br>
     ```
     $./parser
     ```
-
+---
+### Contributors
+[Mukur Panchani](https://github.com/3sne/)<br>
+[Aniket Didolkar](https://github.com/dido1998)<br>
+[Sushant Tiwari](https://github.com/tiwarisushant)<br>
