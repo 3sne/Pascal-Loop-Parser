@@ -1,12 +1,26 @@
+type
+	word = integer;
 var
-   ab: integer;
+	n: array [1..10] of integer;
+   a, b, ret : word;
+   
+
+function max (num1, num2: integer): integer;
+var
+   a: integer;
+begin
+   if (num1 > num2) then
+      result := num1
+   
+   else
+      result  num2;
+   max := result;
+end;	
 
 begin
-   a := 10;
-   while  a < 20  do
-  
-   begin
-      writeln('value of a: ', a);
-      a := a + 1;
-   end;
+   a := 100;
+   b := 20;
+   ret := max(a ,b);
+   
+   writeln( 'Max value is : ', ret );
 end.
