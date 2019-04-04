@@ -15,7 +15,7 @@ If you want to check out the parser: <br>
     $make
     $make clean
     ```
-2. Put your input in `input.txt`
+2. Put your input in `input.pas`
 3. Run the parser using:
     ```
     $./parser
