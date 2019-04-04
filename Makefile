@@ -11,3 +11,6 @@ clean:
 	rm lalr_parser.tab.h
 	rm lalr_parser.tab.c
 	rm lex.yy.c
+
+clean-publish:
+	rm lalr_parser.tab.* lex.yy.c parser tokens.txt
