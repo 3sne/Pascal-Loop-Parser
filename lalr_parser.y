@@ -346,7 +346,7 @@ element
 
 
 void main() {
-    yyin = fopen("input.txt", "r");
+    yyin = fopen("input.pas", "r");
     (yyparse()) ? printf("VERDICT: REJECTED by grammar G\n") : printf("VERDICT: ACCEPTED by grammar G\n");
     fclose(yyin);
 }
