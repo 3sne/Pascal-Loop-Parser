@@ -19,7 +19,9 @@
     //Prototypes
     token* newToken(char lex[], char tn[], int i, int l, int c);
     symTableEntry* newSte(char l[]);
+    void generateSymbolTable();
     void printTokenList();
+    void printSymTable();
     void putTokenListInFile();
 %}
 
@@ -82,7 +84,7 @@ NQUOTE [^']
 {T}{O}                                              { TokenList[tInd++] = newToken(yytext, "TO", -1, gl, gc); lastupdate = strlen(yytext);strcat(s, yytext);colnum+=2;return(TO);}
 {U}{N}{T}{I}{L}                                     { TokenList[tInd++] = newToken(yytext, "UNTIL", -1, gl, gc); lastupdate = strlen(yytext);strcat(s, yytext);colnum+=5;return(UNTIL);}
 {W}{H}{I}{L}{E}                                     { TokenList[tInd++] = newToken(yytext, "WHILE", -1, gl, gc); lastupdate = strlen(yytext);strcat(s, yytext);colnum+=5;return(WHILE);}
-{V}{A}{R}                                           { TokenList[tInd++] = newToken(yytext, "VAR", -1, gl, gc); lastupdate = strlen(yytext);strcat(s, yytext);colnum+=3; return VAR;}
+{V}{A}{R}                                           { TokenList[tInd++] = newToken(yytext, "VAR", -1, gl, gc); lastupdate = strlen(yytext);strcat(s, yytext);colnum+=3; return(VAR);}
 [a-zA-Z_]([a-zA-Z0-9_])*                            { TokenList[tInd++] = newToken(yytext, "IDENT", -1, gl, gc); lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return(IDENT);}
 '({NQUOTE}|'')+'                                    { TokenList[tInd++] = newToken(yytext, "STRING_LITERAL", -1, gl, gc); lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return(STRING_LITERAL);}
 ":="                                                { TokenList[tInd++] = newToken(yytext, "ASSIGN", -1, gl, gc); lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return(ASSIGN);}
@@ -148,6 +150,8 @@ void yyerror(char *msg) {
 
 int yywrap() {
     printTokenList();
+    generateSymbolTable();
+    printSymTable();
     putTokenListInFile();
     return (1);
 }
@@ -174,10 +178,40 @@ symTableEntry* newSte(char l[]) {
 void generateSymbolTable() {
     for (int i = 0; i < tInd; i++) {
         token* focusOn = TokenList[i];
-        if (strcpy(focusOn->tName, "IDENT")) {
-            printf("[TEST] %d : %s", i, focusOn->tName);
+
+        /* Make all legal declarations' index 69 */
+        if (strcmp(focusOn->tName, "VAR") == 0) {
+            int ci = i;
+            token* temp = focusOn;
+            while (strcmp(temp->tName, "COLON") != 0) {
+                temp = TokenList[ci];
+                if(strcmp(temp->tName, "IDENT") == 0) {
+                    symTableEntry* ste = newSte(temp->lName);
+                    
+                    /* varName */
+                    strcpy(ste->varName, temp->lName);
+                    
+                    /* varType */
+                    token* typeLooker = temp;
+                    int tli = ci;
+                    while (strcmp(typeLooker->tName, "COLON") != 0) {
+                        tli++;
+                        typeLooker = TokenList[tli];
+                    }
+                    typeLooker = TokenList[++tli];
+                    strcpy(ste->varType, typeLooker->lName);
+                    
+                    temp->index = 69;
+                    insert(st, ste, &scnt);
+                }
+                ci++;
+            }
         }
 
+        /* Illegal boye, deny him symbol table entry */
+        if (strcmp(focusOn->tName, "IDENT") == 0 && focusOn->index == -1 && search(st, focusOn->lName) == -1) {
+            printf("Bad Case %d %s\n", i, focusOn->lName);
+        } 
     }
 }
 
