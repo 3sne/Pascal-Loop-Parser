@@ -45,6 +45,7 @@ NQUOTE [^']
 
 {A}{N}{D}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=3;return(AND);}
 {A}{R}{R}{A}{Y}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=5;return(ARRAY);}
+{C}{O}{N}{S}{T}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=5;return(CONST);}
 {C}{A}{S}{E}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=4;;return(CASE);}
 {D}{I}{V}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=3;return(DIV);}
 {D}{O}    {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=2;return(DO);}
@@ -52,6 +53,8 @@ NQUOTE [^']
 {E}{L}{S}{E}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=4;return(ELSE);}
 {E}{N}{D}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=3;return(END);}
 {F}{O}{R}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=3;return(FOR);}
+{F}{U}{N}{C}{T}{I}{O}{N}  {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=3;return(FOR);}
+{F}{O}{R}{W}{A}{R}{D} {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=3;return(FOR);}
 {G}{O}{T}{O}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=4;return(GOTO);}
 {I}{F}    {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=2;return(IF);}
 {O}{F}    {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=2;return(OF);}
@@ -65,11 +68,15 @@ NQUOTE [^']
 {R}{E}{C}{O}{R}{D}  {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=6; printf("%s", yytext);return(RECORD);}
 {B}{E}{G}{I}{N}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=5;return(PBEGIN);}
 {P}{A}{C}{K}{E}{D}  {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=6;return(PACKED);}
+{L}{A}{B}{E}{L}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=6;return(LABEL);}
+{T}{Y}{P}{E}       {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=6;return(TYPE);}
 {R}{E}{P}{E}{A}{T}  {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=6;return(REPEAT);}
 {T}{H}{E}{N}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=4;return(THEN);}
+{P}{R}{O}{C}{E}{D}{U}{R}{E} {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=4;return(THEN);}
 {T}{O}    {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=2;return(TO);}
 {U}{N}{T}{I}{L}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=5;return(UNTIL);}
 {W}{H}{I}{L}{E}   {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=5;return(WHILE);}
+{E}{X}{T}{E}{R}{N}{A}{L} {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=5;return(WHILE);}
 {V}{A}{R} {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=3; return VAR;}
 [a-zA-Z_]([a-zA-Z0-9_])*  {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return(IDENT);}
 '({NQUOTE}|'')+'  {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return(STRING_LITERAL);}
@@ -92,6 +99,8 @@ NQUOTE [^']
 ")"    {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return(RPAREN);}
 ";"    {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return(SEMI);}
 "/"    {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return(SLASH);}
+
+"**"    {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return(STARSTAR);}
 "*"    {lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return STAR;}
 "\n"   {strcat(s,"\n");
 if(rownum>2) 

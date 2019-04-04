@@ -14,26 +14,105 @@
 %token AND "and" DIV "div" DO "do" DOWNTO "downto" ELSE "else" END "end" FOR "for" GOTO "goto" IF "if" IN "in" MOD "mod" NIL "nil" NOT "not" OR "or" PBEGIN "begin" REPEAT "repeat" 
 %token THEN "then" TO "to" UNTIL "until" WHILE "while" IDENT "identifier" ASSIGN ":=" COLON ":" COMMA "," EQUAL "=" GE ">=" GT ">" LBRACK "[" LE "<=" LPAREN "("
 %token LT "<" MINUS "minus" NOT_EQUAL "<>" PLUS "+" RBRACK "]" NUM_INT "number" RPAREN ")" SEMI "semicolon" SLASH "/" STAR "*"  DOTDOT ".." CHR "character"
-%token PFILE "file" UPARROW "^" OF "of" STRING_LITERAL "literal" VAR "var" PACKED "packed" RECORD "record" CASE "case" SET "set" ARRAY "array";
+%token PFILE "file" UPARROW "^" OF "of" STRING_LITERAL "literal" VAR "var" PACKED "packed" RECORD "record" CASE "case" SET "set" ARRAY "array" LABEL "label" CONST "const" STARSTAR TYPE "type";
+%token FORWARD "forward" EXTERNAL "external" FUNCTION "function" PROCEDURE "procedure"
+
 %error-verbose
 %locations
 %define parse.lac full
 %define api.pure true
 
 %%
-augment : variable_declaration_part repetetiveStatement
+augment : block
    ;
 
-variable_declaration_part : VAR variable_declaration_list SEMI
+
+block : label_declaration_part
+ constant_definition_part
+ type_definition_part
+ variable_declaration_part
+ procedure_and_function_declaration_part
+ statement_part
+      ;
+
+label_declaration_part : LABEL label_list SEMI
       |
       ;
 
-variable_declaration_list :
-   variable_declaration_list SEMI variable_declaration
-      | variable_declaration
+label_list : label_list COMMA label
+      | label
       ;
 
-variable_declaration : identifier_list COLON type_denoter
+label : NUM_INT
+      ;
+
+
+constant_definition_part : CONST constant_list
+      |
+      ;
+
+constant_list : constant_list constant_definition
+      | constant_definition
+      ;
+
+constant_definition : identifier EQUAL cexpression SEMI
+      ;
+
+/*constant : cexpression      ;  /* good stuff! */
+
+cexpression : csimple_expression
+      | csimple_expression relationaloperator csimple_expression
+      ;
+
+csimple_expression : cterm
+      | csimple_expression additiveoperator cterm
+      ;
+
+cterm : cfactor
+      | cterm multiplicativeoperator cfactor
+      ;
+
+cfactor : sign cfactor
+      | cexponentiation
+      ;
+
+cexponentiation : cprimary
+      | cprimary STARSTAR cexponentiation
+      ;
+
+cprimary : identifier
+      | LPAREN cexpression RPAREN
+      | unsigned_constant
+      | NOT cprimary
+      ;
+
+constant : non_string
+      | sign non_string
+      | STRING_LITERAL
+      ;
+
+sign : PLUS
+      | MINUS
+      ;
+
+non_string : NUM_INT
+      | identifier
+      
+      ;
+
+
+
+
+
+type_definition_part : TYPE type_definition_list
+      |
+      ;
+
+type_definition_list : type_definition_list type_definition
+      | type_definition
+      ;
+
+type_definition : identifier EQUAL type_denoter SEMI
       ;
 
 
@@ -132,6 +211,16 @@ file_type : PFILE OF component_type
 new_pointer_type : UPARROW domain_type
       ;
 
+
+unsigned_constant : unsigned_number
+      | STRING_LITERAL
+      | NIL
+      ;
+
+unsigned_number : NUM_INT       ;
+
+
+
 domain_type : identifier      ;
 
 
@@ -143,6 +232,128 @@ record_section_list : record_section_list SEMI record_section
 record_section : identifier_list COLON type_denoter
 
 
+variable_declaration_part : VAR variable_declaration_list SEMI
+      |
+      ;
+
+variable_declaration_list :
+   variable_declaration_list SEMI variable_declaration
+      | variable_declaration
+      ;
+
+variable_declaration : identifier_list COLON type_denoter
+      ;
+
+
+procedure_and_function_declaration_part :
+  proc_or_func_declaration_list SEMI
+      |
+      ;
+
+proc_or_func_declaration_list :
+   proc_or_func_declaration_list SEMI proc_or_func_declaration
+      | proc_or_func_declaration
+      ;
+
+proc_or_func_declaration : procedure_declaration
+      | function_declaration
+      ;
+
+procedure_declaration : procedure_heading SEMI directive
+      | procedure_heading SEMI procedure_block
+      ;
+
+procedure_heading : procedure_identification
+      | procedure_identification formal_parameter_list
+      ;
+
+directive : FORWARD
+      | EXTERNAL
+      ;
+
+formal_parameter_list : LPAREN formal_parameter_section_list RPAREN      ;
+
+formal_parameter_section_list : formal_parameter_section_list SEMI formal_parameter_section
+      | formal_parameter_section
+      ;
+
+formal_parameter_section : value_parameter_specification
+      | variable_parameter_specification
+      | procedural_parameter_specification
+      | functional_parameter_specification
+      ;
+
+value_parameter_specification : identifier_list COLON identifier
+      ;
+
+variable_parameter_specification : VAR identifier_list COLON identifier
+      ;
+
+procedural_parameter_specification : procedure_heading      ;
+
+functional_parameter_specification : function_heading      ;
+
+procedure_identification : PROCEDURE identifier      ;
+
+procedure_block : block      ;
+
+function_declaration : function_heading SEMI directive
+      | function_identification SEMI function_block
+      | function_heading SEMI function_block
+      ;
+
+function_heading : FUNCTION identifier COLON result_type
+      | FUNCTION identifier formal_parameter_list COLON result_type
+      ;
+
+result_type : identifier      ;
+
+function_identification : FUNCTION identifier      ;
+
+function_block : block      ;
+
+statement_part : compound_statement      ;
+
+
+compound_statement : PBEGIN statement_sequence END      ;
+
+statement_sequence : statement_sequence SEMI statement
+      | statement
+      ;
+
+statement : 
+      closed_statement |
+      ;
+
+
+closed_statement : label COLON non_labeled_closed_statement
+      | non_labeled_closed_statement
+      ;
+
+non_labeled_closed_statement : 
+      assignmentStatement
+      | conditionalStatement
+      | procedure_statement
+      | gotoStatement
+      | compound_statement
+      | repetetiveStatement
+      ;
+
+procedure_statement : identifier params
+      | identifier
+      ;
+
+params : LPAREN actual_parameter_list RPAREN      ;
+
+actual_parameter_list : actual_parameter_list COMMA actual_parameter
+      | actual_parameter
+      ;
+
+actual_parameter : expression
+      | expression COLON expression
+      | expression COLON expression COLON expression
+      ;
+
 repetetiveStatement
    : whileStatement
    | repeatStatement
@@ -150,37 +361,21 @@ repetetiveStatement
    ;
 
 whileStatement
-   : WHILE expression DO PBEGIN statements END 
+   : WHILE expression DO compound_statement
    ;
 
 repeatStatement
-   : REPEAT statements UNTIL expression SEMI
+   : REPEAT statement_sequence UNTIL expression SEMI
    ;
 
 forStatement
-   : FOR IDENT ASSIGN forList DO PBEGIN statements END SEMI
+   : FOR IDENT ASSIGN forList DO compound_statement SEMI
    ;
 
 forList
    : expression TO expression | expression DOWNTO expression
    ;
-statements
-   : statement statements|;
-statement
-   : NUM_INT COLON unlabelledStatement
-   | unlabelledStatement 
-   ;
 
-unlabelledStatement
-   : simpleStatement
-   | structuredStatement
-   ;
-
-simpleStatement
-   : assignmentStatement
-   | gotoStatement
-   | 
-   ;
 
 assignmentStatement
    : identifier ASSIGN expression 
@@ -188,11 +383,7 @@ assignmentStatement
 
 
     
-structuredStatement
-   : compoundStatement
-   | conditionalStatement
-   | repetetiveStatement
-   ;
+
 
 
 gotoStatement
@@ -226,14 +417,6 @@ simpleExpression
    | term additiveoperator simpleExpression
    ;
 
-
-compoundStatement
-   : PBEGIN statements END SEMI
-   ;
-
-statements
-   : statement SEMI statements |
-   ;
 
 conditionalStatement
    : ifStatement
