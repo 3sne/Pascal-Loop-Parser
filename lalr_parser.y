@@ -1,18 +1,148 @@
 
 %{
-    #include <stdio.h>
-    #include <stdlib.h>
-    extern FILE * yyin;
-    int yyerror(char *msg);
-    int yylex();
+   #include <stdio.h>
+   #include <stdlib.h>
+
+   #define YYERROR_VERBOSE 1
+   extern FILE * yyin;
+
+   int yylex();
+
     // %token LITERAL SEMICOLON COMMA COLON ASSIGN LT GT LTE GTE EQUAL NOTEQUAL ADD MULTIPLY SUBTRACT DIVIDE COMP_AND COMP_DAND VOID COMP_OR COMP_DOR LP RP LC RC LSB RSB CHAR INT UINT SIGNED UNSIGNED SHORT LONG FLOAT DOUBLE REGISTER CONST IF ELSE FOR WHILE DO SWITCH CASE DEFAULT BREAK CONTINUE ENUM TYPEDEF EXTERN RETURN UNION GOTO ID NUM MOD;
 %}
 
-%token AND DIV DO DOWNTO ELSE END FOR GOTO IF IN MOD NIL NOT OR BEGIN REPEAT THEN TO UNTIL WHILE IDENT ASSIGN COLON COMMA EQUAL GE GT LBRACK LE LPAREN LT MINUS NOT_EQUAL PLUS RBRACK NUM_INT RPAREN SEMI SLASH STAR CHR DOTDOT STRING_LITERAL;
+%token AND "and" DIV "div" DO "do" DOWNTO "downto" ELSE "else" END "end" FOR "for" GOTO "goto" IF "if" IN "in" MOD "mod" NIL "nil" NOT "not" OR "or" PBEGIN "begin" REPEAT "repeat" 
+%token THEN "then" TO "to" UNTIL "until" WHILE "while" IDENT "identifier" ASSIGN ":=" COLON ":" COMMA "," EQUAL "=" GE ">=" GT ">" LBRACK "[" LE "<=" LPAREN "("
+%token LT "<" MINUS "minus" NOT_EQUAL "<>" PLUS "+" RBRACK "]" NUM_INT "number" RPAREN ")" SEMI "semicolon" SLASH "/" STAR "*"  DOTDOT ".." CHR "character"
+%token PFILE "file" UPARROW "^" OF "of" STRING_LITERAL "literal" VAR "var" PACKED "packed" RECORD "record" CASE "case" SET "set" ARRAY "array";
+%error-verbose
+%locations
+%define parse.lac full
+%define api.pure true
 
 %%
-augment : repetetiveStatement
+augment : variable_declaration_part repetetiveStatement
    ;
+
+variable_declaration_part : VAR variable_declaration_list SEMI
+      |
+      ;
+
+variable_declaration_list :
+   variable_declaration_list SEMI variable_declaration
+      | variable_declaration
+      ;
+
+variable_declaration : identifier_list COLON type_denoter
+      ;
+
+
+identifier_list : identifier_list COMMA identifier
+      | identifier
+      ;
+
+type_denoter : identifier
+      | new_type
+      ;
+
+new_type : new_ordinal_type
+      | new_structured_type
+      
+      ;
+
+new_ordinal_type : enumerated_type
+      | subrange_type
+      ;
+
+enumerated_type : LPAREN identifier_list RPAREN
+      ;
+
+subrange_type : unsignedConstant DOTDOT unsignedConstant
+      ;
+
+new_structured_type : structured_type
+      | PACKED structured_type
+      ;
+
+structured_type : array_type
+      | record_type
+      | set_type
+      | file_type
+      ;
+
+array_type : ARRAY LPAREN index_list RPAREN OF component_type
+      ;
+
+index_list : index_list COMMA index_type
+      | index_type
+      ;
+
+index_type : ordinal_type      ;
+
+ordinal_type : new_ordinal_type
+      | identifier
+      ;
+
+component_type : type_denoter      ;
+
+record_type : RECORD record_section_list END
+      | RECORD record_section_list SEMI variant_part END
+      | RECORD variant_part END
+      ;
+
+
+variant_part : CASE variant_selector OF variant_list SEMI
+      | CASE variant_selector OF variant_list
+      |
+      ;
+
+variant_selector : tag_field COLON tag_type
+      | tag_type
+      ;
+
+variant_list : variant_list SEMI variant
+      | variant
+      ;
+
+variant : case_constant_list COLON LPAREN record_section_list RPAREN
+      | case_constant_list COLON LPAREN record_section_list SEMI
+  variant_part RPAREN
+      | case_constant_list COLON LPAREN variant_part RPAREN
+      ;
+
+case_constant_list : case_constant_list COMMA case_constant
+      | case_constant
+      ;
+case_constant : unsignedConstant
+      | unsignedConstant DOTDOT unsignedConstant
+      ;
+
+tag_field : identifier      ;
+
+tag_type : identifier      ;
+
+set_type : SET OF base_type
+      ;
+
+base_type : ordinal_type      ;
+
+file_type : PFILE OF component_type
+      ;
+
+new_pointer_type : UPARROW domain_type
+      ;
+
+domain_type : identifier      ;
+
+
+record_section_list : record_section_list SEMI record_section
+      | record_section
+      ;
+
+
+record_section : identifier_list COLON type_denoter
+
+
 repetetiveStatement
    : whileStatement
    | repeatStatement
@@ -20,32 +150,25 @@ repetetiveStatement
    ;
 
 whileStatement
-   : WHILE expression DO statement
+   : WHILE expression DO PBEGIN statements END 
    ;
 
 repeatStatement
-   : REPEAT statements UNTIL expression
+   : REPEAT statements UNTIL expression SEMI
    ;
 
 forStatement
-   : FOR identifier ASSIGN forList DO statement
+   : FOR IDENT ASSIGN forList DO PBEGIN statements END SEMI
    ;
 
 forList
-   : initialValue TO finalValue | initialValue DOWNTO finalValue
+   : expression TO expression | expression DOWNTO expression
    ;
-
-initialValue
-   : expression
-   ;
-
-finalValue
-   : expression
-   ;
-
+statements
+   : statement statements|;
 statement
-   : label COLON unlabelledStatement
-   | unlabelledStatement
+   : NUM_INT COLON unlabelledStatement
+   | unlabelledStatement 
    ;
 
 unlabelledStatement
@@ -56,28 +179,14 @@ unlabelledStatement
 simpleStatement
    : assignmentStatement
    | gotoStatement
-   | emptyStatement
+   | 
    ;
 
 assignmentStatement
-   : variable ASSIGN expression
-   ;
-
-variable
-   : identifier
+   : identifier ASSIGN expression 
    ;
 
 
-
-
-label
-   : unsignedInteger
-   ;
-
-
-unsignedInteger
-   : NUM_INT
-   ;
     
 structuredStatement
    : compoundStatement
@@ -87,12 +196,9 @@ structuredStatement
 
 
 gotoStatement
-   : GOTO label
+   : GOTO NUM_INT
    ;
 
-
-emptyStatement
-   :
 
 
 identifier
@@ -122,7 +228,7 @@ simpleExpression
 
 
 compoundStatement
-   : BEGIN statements END
+   : PBEGIN statements END SEMI
    ;
 
 statements
@@ -134,18 +240,13 @@ conditionalStatement
   
    ;
 
-ifStatement
+
+
+ifStatement 
    : IF expression THEN statement
    | IF expression THEN statement ELSE statement
    ;
 
-
-
-repetetiveStatement
-   : whileStatement
-   | repeatStatement
-   | forStatement
-   ;
 
 
 additiveoperator
@@ -174,7 +275,7 @@ signedFactor
    ;
 
 factor
-   : variable
+   : identifier
    | LPAREN expression RPAREN
    | functionDesignator
    | unsignedConstant
@@ -205,14 +306,14 @@ parameterwidth
    ;
 
 unsignedConstant
-   : unsignedInteger
+   : NUM_INT
    | constantChr
-   | string
+   | STRING_LITERAL
    | NIL
    ;
 
 constantChr
-   : CHR LPAREN unsignedInteger RPAREN
+   : CHR LPAREN NUM_INT RPAREN
    ;
 
 set
@@ -235,15 +336,10 @@ element
    | expression DOTDOT expression
    ;
 
-string
-   : STRING_LITERAL
-   ;
+
 %%
 
 
-int yyerror(char *msg) {
-    printf("INVALID EXPR >> %s\n", msg);
-}
 
 void main() {
     yyin = fopen("input.txt", "r");
