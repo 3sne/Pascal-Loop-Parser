@@ -10,6 +10,7 @@ typedef struct symTableEntry {
     char varMemSize[256];
     char scope[256];
     int numArgs;
+    int isfunction;
    char* args[256];
     char returnType[256];
     struct symTableEntry* next;
@@ -49,7 +50,7 @@ int search(symTableEntry* st[], char l[], char scope[]) {
     symTableEntry* temp;
     int searchThisList = h(l);
     for(temp = st[searchThisList]; temp; temp = temp->next) { 
-        if (strcmp(temp->varName, l) == 0 && (temp->scope)?(strcmp(scope, temp->scope)==0):1) {
+        if (strcmp(temp->varName, l) == 0 && (strcmp(scope, temp->scope)==0)) {
             return temp->id;
         }
     }
@@ -68,4 +69,20 @@ void insert(symTableEntry* st[], symTableEntry* newBoi, int* symCount) {
         last = temp;
     }
     last->next = newBoi;
+}
+
+
+int hastype(symTableEntry* st[], char l[])
+{
+    symTableEntry* temp;
+    int searchThisList = h(l);
+    for(temp = st[searchThisList]; temp; temp = temp->next) { 
+        if (strcmp(temp->varName, l) == 0 ) {
+            if(temp->isfunction)
+                return 0;
+            else
+                return 1;
+        }
+    }
+
 }

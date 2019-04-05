@@ -1,10 +1,13 @@
 type
-	word = integer;
+	vector = integer;
+
+
+
 var
 	n: array [1..10] of integer;
-   a, b, ret : word;
+    b, ret : vector;
+   a, c : vector;
    
-
 function max (num1, num2: integer): integer;
 var
    a: integer;
@@ -13,9 +16,10 @@ begin
       result := num1
    
    else
-      result  num2;
+      result := num2;
    max := result;
 end;	
+
 
 begin
    a := 100;

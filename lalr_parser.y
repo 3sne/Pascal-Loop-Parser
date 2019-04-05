@@ -43,6 +43,7 @@
     symTableEntry* temp = (symTableEntry*)malloc(sizeof(symTableEntry));
     temp->id = scnt ++;
     temp->next = NULL;
+    
     strcpy(temp->varName, l);
    int arr1;
    int arr2;
@@ -209,10 +210,11 @@ type_definition : identifier EQUAL type_denoter SEMI {
          char* temp6 = (char*)malloc(sizeof(char)*50);
          temp6 = strdup($1);
          char temp3_type[] = "TYPE";
-
+        
          symTableEntry*  ste = newSte(temp6);
          strcpy(ste->varType, type);
          strcpy(ste->scope, function[cur_function_index]);
+          ste->isfunction = 1;
          insert(st,ste,&stcnt);
       }
       ;
@@ -385,7 +387,7 @@ record_section_list : record_section_list SEMI record_section
 record_section : identifier_list COLON type_denoter
 
 
-variable_declaration_part : VAR {var_activate = 1;} variable_declaration_list SEMI {var_activate = 0;}
+variable_declaration_part : VAR {var_activate = 1;} variable_declaration_list SEMI {var_activate = 0;} | error
       |
       ;
 
@@ -395,7 +397,6 @@ variable_declaration_list :
       ;
 
 variable_declaration : identifier_list COLON type_denoter {
-
    for(int i = 0;i<id_cnt;i++)
    {
       
@@ -405,6 +406,7 @@ variable_declaration : identifier_list COLON type_denoter {
          strcpy(ste->varType, type);
          strcpy(ste->varMemSize, memsize);
          strcpy(ste->scope, function[cur_function_index]);
+         ste->isfunction = 0;
          insert(st,ste,&stcnt);
       }else
       {
@@ -465,12 +467,14 @@ value_parameter_specification : identifier_list COLON type_denoter{
    for(int i = 0;i<id_cnt;i++)
    {
       
+      
       if(search(st, identifiers[i], function[cur_function_index])==-1)
       {
          symTableEntry*  ste = newSte(identifiers[i]);
          strcpy(ste->varType, type);
          strcpy(ste->varMemSize, memsize);
          strcpy(ste->scope, function[cur_function_index]);
+         ste->isfunction = 0;
          insert(st,ste,&stcnt);
       }else
       {
@@ -513,6 +517,7 @@ function_heading : FUNCTION identifier COLON result_type
          }
          ste->numArgs = arg_cnt;
          arg_cnt = 0;
+         ste->isfunction = 1;
          insert(st,ste,&stcnt);
       }|error
 
@@ -530,16 +535,16 @@ statement_part : compound_statement      ;
 compound_statement : PBEGIN statement_sequence END      ;
 
 statement_sequence :  statement_sequence SEMI statement
-      | statement
+      | statement 
       ;
 
 statement : 
-      closed_statement |     
+      closed_statement      
       ;
 
 
 closed_statement : label COLON non_labeled_closed_statement
-      | non_labeled_closed_statement |error
+      | non_labeled_closed_statement 
       ;
 
 non_labeled_closed_statement : 
@@ -549,6 +554,7 @@ non_labeled_closed_statement :
       | gotoStatement
       | compound_statement
       | repetetiveStatement
+      |
       ;
 
 procedure_statement : identifier params
@@ -573,15 +579,15 @@ repetetiveStatement
    ;
 
 whileStatement
-   : WHILE expression DO compound_statement SEMI
+   : WHILE expression DO compound_statement 
    ;
 
 repeatStatement
-   : REPEAT statement_sequence UNTIL expression SEMI
+   : REPEAT statement_sequence UNTIL expression 
    ;
 
 forStatement
-   : FOR IDENT ASSIGN forList DO compound_statement SEMI
+   : FOR IDENT ASSIGN forList DO compound_statement 
    ;
 
 forList
@@ -590,12 +596,12 @@ forList
 
 
 assignmentStatement
-   : identifier ASSIGN expression  
+   : ourvariable ASSIGN expression  
    ;
 
 
     
-
+ourvariable: identifier | identifier LBRACK expression RBRACK  ;
 
 
 gotoStatement
@@ -677,6 +683,7 @@ factor
    | unsignedConstant
    | set
    | NOT factor
+   |  identifier LBRACK expression RBRACK  
    ;
 
 functionDesignator : identifier LPAREN parameterList RPAREN
@@ -750,8 +757,8 @@ void yyerror(char *msg) {
     failure = 1;
 }
 
-void main() {
-    yyin = fopen("input.txt", "r");
+void main(int argc, char* argv[]) {
+    yyin = fopen(argv[1], "r");
     char* m = malloc(sizeof(char)*100);
    strcpy(m,"main");
    function[0] = m;

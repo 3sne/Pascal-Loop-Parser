@@ -6,13 +6,14 @@
     #define ANSI_COLOR_RESET   "\x1b[0m"
 
     #define ANSI_COLOR_CYAN    "\x1b[36m"
-    
+    void commenteof() ;
     #define SAVE_TOKEN yylval.string = (char*)malloc(sizeof(char)*(yyleng+1));\
                    strcpy(yylval.string,yytext);
     #define TOKEN(t) (yylval.token = t);
     typedef struct token {
     char tName[256];
     char lName[256];
+    
     int index;
     int line;
     int column;
@@ -133,6 +134,23 @@ NQUOTE [^']
 "/"                                                 { TokenList[tInd++] = newToken(yytext, "SLASH", -1, rownum, colnum); lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return TOKEN(SLASH);}
 "**"                                                { TokenList[tInd++] = newToken(yytext, "STARSTAR", -1, rownum, colnum); lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return TOKEN(STARSTAR);}
 "*"                                                 { TokenList[tInd++] = newToken(yytext, "STAR", -1, rownum, colnum); lastupdate = strlen(yytext);strcat(s, yytext);colnum+=strlen(yytext);return TOKEN(STAR);}
+"(*"|"{"                                            {   register int c;
+                                                    while ((c = input())){
+                                                    if (c == '}')
+                                                        break;
+                                                    else if (c == '*') {
+                                                        if ((c = input()) == ')')
+                                                            break;
+                                                        else
+                                                            unput (c);
+                                                    }
+                                                    else if (c == '\n')
+                                                        rownum++;
+                                                    else if (c == 0)
+                                                        commenteof();
+                                                    }
+                                                    }
+
 "\n"                                                {   
                                                         strcat(s,"\n");
                                                         if(rownum>2) {
@@ -151,6 +169,7 @@ NQUOTE [^']
                                                         rownum++;
                                                         colnum=1;
                                                     }
+
 " "                                                 { lastupdate = 1;colnum++;strcat(s, yytext);}
 
 
@@ -205,6 +224,12 @@ void printTokenList() {
     for ( int i = 0; i < tInd; i++ ) {
         printf("<%10s %10s   %6d %3d %3d >\n", TokenList[i]->lName, TokenList[i]->tName, TokenList[i]->index, TokenList[i]->line, TokenList[i]->column);
     }
+}
+
+void commenteof() {
+    fprintf (stderr, "unexpected EOF inside comment at line %d\n",
+    rownum);
+    exit (EXIT_FAILURE);
 }
 
 void putTokenListInFile() {

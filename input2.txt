@@ -1,0 +1,17 @@
+type
+   WORD = INTEGER;
+var
+	   n: array [1..10] of integer;  
+   	i: integer;
+	j : WORD;
+begin
+          
+   for i := 1 to 10 do
+   BEGIN
+       n[ i ] := i + 100;   
+   END;
+   for j:= 1 to 10 do
+   BEGIN
+      writeln('Element[', j, '] = ', n[j] );
+   END;
+end.
