@@ -1,12 +1,6 @@
 #include <string.h>
 
-typedef struct token {
-    char tName[256];
-    char lName[256];
-    int index;
-    int line;
-    int column;
-} token;
+#include<stdio.h>
 
 
 typedef struct symTableEntry {
@@ -14,9 +8,10 @@ typedef struct symTableEntry {
     char varName[256];
     char varType[256];
     char varMemSize[256];
-    char scope;
+    char scope[256];
     int numArgs;
-    token* args[256];
+    int isfunction;
+   char* args[256];
     char returnType[256];
     struct symTableEntry* next;
 } symTableEntry;
@@ -24,7 +19,7 @@ typedef struct symTableEntry {
 //PROTOTYPES
 int h(char *s);
 int power(int base, int exp);
-int search(symTableEntry* st[], char l[]);
+int search(symTableEntry* st[], char l[], char scope[]);
 void insert(symTableEntry* st[], symTableEntry* newBoi, int* symCount);
 
 //FUNCTIONS
@@ -51,11 +46,11 @@ int power(int base, int exp) {
     return base;
 }
 
-int search(symTableEntry* st[], char l[]) {
+int search(symTableEntry* st[], char l[], char scope[]) {
     symTableEntry* temp;
     int searchThisList = h(l);
-    for(temp = st[searchThisList]; temp; temp = temp->next) {            
-        if (strcmp(temp->varName, l) == 0) {
+    for(temp = st[searchThisList]; temp; temp = temp->next) { 
+        if (strcmp(temp->varName, l) == 0 && (strcmp(scope, temp->scope)==0)) {
             return temp->id;
         }
     }
@@ -74,4 +69,20 @@ void insert(symTableEntry* st[], symTableEntry* newBoi, int* symCount) {
         last = temp;
     }
     last->next = newBoi;
+}
+
+
+int hastype(symTableEntry* st[], char l[])
+{
+    symTableEntry* temp;
+    int searchThisList = h(l);
+    for(temp = st[searchThisList]; temp; temp = temp->next) { 
+        if (strcmp(temp->varName, l) == 0 ) {
+            if(temp->isfunction)
+                return 0;
+            else
+                return 1;
+        }
+    }
+
 }
