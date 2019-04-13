@@ -1,9 +1,9 @@
-# Pascal Loop Parser
+# Simple Pascal Parser
 
-This repository contains code base of 2 phase parser for loop constructs of Pascal programming language written in C using flex and bison.
+This repository contains code base of 2 phase parser for Pascal programming language written in C using flex and bison.
 
 ### Supported features include: <br>
-* Parsing loop constructs of Pascal
+* Parsing general constructs of Pascal including loops, conditionals and functions
 * Token List Generation
 * Symbol Table Generation
 * Error Reporting
